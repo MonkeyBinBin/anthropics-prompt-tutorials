@@ -1,0 +1,813 @@
+/* ===== Reset & Base ===== */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* 暖色編輯風格調色盤 */
+  --paper: #faf6f0;
+  --paper-dark: #f0ebe3;
+  --ink: #2c2418;
+  --ink-light: #5a4e3c;
+  --ink-muted: #8a7e6c;
+  --accent: #b85c38;
+  --accent-light: #e8c4a0;
+  --accent-hover: #9a4528;
+  --code-bg: #2e2a25;
+  --code-text: #e8dfd4;
+  --code-accent: #f0c674;
+  --border: #d6cec2;
+  --sidebar-bg: #34302a;
+  --sidebar-text: #d6cec2;
+  --sidebar-active: #faf6f0;
+  --shadow: rgba(44, 36, 24, 0.08);
+  --hint-bg: #f5efe6;
+  --exercise-bg: #fdf8f2;
+  --exercise-border: #c8a882;
+  --tip-bg: #f0ebe3;
+  --tip-border: #b89a6a;
+  --success: #5a7a4a;
+  --scroll-thumb: #b8a88c;
+}
+
+html {
+  font-size: 17px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Noto Serif TC", "Source Han Serif TC", Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 3px;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-header h1 {
+  font-family: "Noto Sans TC", "Source Han Sans TC", -apple-system, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--sidebar-active);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.sidebar-header .subtitle {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  margin-top: 0.35rem;
+  font-family: -apple-system, sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.85rem;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--sidebar-active);
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--sidebar-active);
+  border-left-color: var(--accent);
+}
+
+.nav-item .nav-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.nav-item.active .nav-number {
+  background: var(--accent);
+  color: #fff;
+}
+
+.nav-item.completed .nav-number {
+  background: var(--success);
+  color: #fff;
+}
+
+.nav-section-label {
+  padding: 1rem 1.5rem 0.4rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  font-family: -apple-system, sans-serif;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  font-family: -apple-system, sans-serif;
+}
+
+.sidebar-footer a {
+  color: var(--accent-light);
+  text-decoration: none;
+}
+
+.sidebar-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Progress bar ===== */
+.progress-bar {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.75rem 1.5rem 0;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+.progress-text {
+  font-size: 0.65rem;
+  color: var(--ink-muted);
+  margin-top: 0.3rem;
+  padding: 0 1.5rem;
+  font-family: -apple-system, sans-serif;
+}
+
+/* ===== Mobile menu toggle ===== */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--sidebar-bg);
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.menu-toggle svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--sidebar-active);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 90;
+}
+
+/* ===== Main content ===== */
+.main {
+  flex: 1;
+  margin-left: 300px;
+  min-height: 100vh;
+}
+
+.content {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 3rem 2.5rem 6rem;
+}
+
+/* ===== Chapter header ===== */
+.chapter-header {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.chapter-label {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.chapter-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+
+.chapter-header .lead {
+  font-size: 1.1rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+}
+
+/* ===== TOC within chapter ===== */
+.chapter-toc {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.chapter-toc a {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.chapter-toc a:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ===== Typography ===== */
+.content h2 {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 3rem 0 1.25rem;
+  color: var(--ink);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.content h3 {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 2rem 0 0.75rem;
+  color: var(--ink);
+}
+
+.content h4 {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--ink-light);
+}
+
+.content p {
+  margin-bottom: 1.15rem;
+}
+
+.content strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.content a:hover {
+  color: var(--accent-hover);
+}
+
+.content ul,
+.content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.15rem;
+}
+
+.content li {
+  margin-bottom: 0.4rem;
+}
+
+.content hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 2.5rem 0;
+}
+
+/* ===== Blockquote / Tip ===== */
+.tip-block {
+  background: var(--tip-bg);
+  border-left: 3px solid var(--tip-border);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  border-radius: 0 6px 6px 0;
+  position: relative;
+}
+
+.tip-block::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b89a6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='16' x2='12' y2='12'/%3E%3Cline x1='12' y1='8' x2='12.01' y2='8'/%3E%3C/svg%3E");
+  background-size: contain;
+  position: absolute;
+  top: 1rem;
+  left: -12px;
+  background-color: var(--tip-bg);
+  border-radius: 50%;
+}
+
+.tip-block p {
+  margin-bottom: 0.5rem;
+  font-size: 0.92rem;
+  color: var(--ink-light);
+}
+
+.tip-block p:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== Code blocks ===== */
+.code-block {
+  background: var(--code-bg);
+  color: var(--code-text);
+  border-radius: 8px;
+  margin: 1.25rem 0;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  font-family: -apple-system, sans-serif;
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+}
+
+.copy-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--code-text);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: -apple-system, sans-serif;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.copy-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.code-block pre {
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", Menlo, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+.code-block code {
+  font-family: inherit;
+}
+
+/* Inline code */
+.content code:not(.code-block code) {
+  background: var(--paper-dark);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-family: "SF Mono", "JetBrains Mono", Menlo, monospace;
+  font-size: 0.85em;
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+
+/* ===== Exercise block ===== */
+.exercise-block {
+  background: var(--exercise-bg);
+  border: 1px solid var(--exercise-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.exercise-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  border-radius: 8px 8px 0 0;
+}
+
+.exercise-label {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exercise-label svg {
+  width: 16px;
+  height: 16px;
+}
+
+.exercise-block h4 {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 1.05rem;
+  margin: 0.25rem 0 0.75rem;
+  color: var(--ink);
+}
+
+.exercise-block .validation {
+  background: rgba(90, 122, 74, 0.08);
+  border: 1px solid rgba(90, 122, 74, 0.2);
+  border-radius: 5px;
+  padding: 0.6rem 0.9rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--success);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.exercise-block .validation svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ===== Hint (collapsible) ===== */
+.hint-block {
+  margin-top: 0.75rem;
+}
+
+.hint-toggle {
+  background: none;
+  border: 1px dashed var(--border);
+  padding: 0.5rem 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+}
+
+.hint-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(184, 92, 56, 0.04);
+}
+
+.hint-toggle svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s;
+}
+
+.hint-toggle.open svg {
+  transform: rotate(90deg);
+}
+
+.hint-content {
+  display: none;
+  padding: 0.75rem 0.9rem;
+  margin-top: 0.4rem;
+  background: var(--hint-bg);
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  border-left: 2px solid var(--border);
+}
+
+.hint-content.show {
+  display: block;
+}
+
+/* ===== Table ===== */
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+}
+
+.content th {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 2px solid var(--border);
+  color: var(--ink);
+  font-size: 0.85rem;
+}
+
+.content td {
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.content tr:hover td {
+  background: var(--paper-dark);
+}
+
+/* ===== Section icon ===== */
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.section-icon.lesson {
+  background: rgba(184, 92, 56, 0.1);
+}
+
+.section-icon.exercise {
+  background: rgba(90, 122, 74, 0.1);
+}
+
+.section-icon.playground {
+  background: rgba(184, 154, 106, 0.15);
+}
+
+.section-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ===== Navigation buttons ===== */
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  gap: 1rem;
+}
+
+.chapter-nav-btn {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.2s;
+  cursor: pointer;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  max-width: 48%;
+}
+
+.chapter-nav-btn:hover {
+  border-color: var(--accent);
+  background: var(--exercise-bg);
+}
+
+.chapter-nav-btn .nav-direction {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  margin-bottom: 0.25rem;
+}
+
+.chapter-nav-btn .nav-title {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.chapter-nav-btn.next {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* ===== Flow diagram (替代 mermaid) ===== */
+.flow-diagram {
+  background: var(--paper-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.25rem 0;
+  text-align: center;
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  overflow-x: auto;
+}
+
+.flow-diagram .flow-step {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  margin: 0.2rem;
+}
+
+.flow-diagram .flow-arrow {
+  display: inline-block;
+  margin: 0 0.3rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: 4rem 1.25rem 4rem;
+  }
+
+  .chapter-header h1 {
+    font-size: 1.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 15px;
+  }
+
+  .content {
+    padding: 3.5rem 1rem 3rem;
+  }
+
+  .chapter-toc {
+    gap: 0.75rem;
+  }
+
+  .chapter-nav {
+    flex-direction: column;
+  }
+
+  .chapter-nav-btn {
+    max-width: 100%;
+  }
+
+  .chapter-nav-btn.next {
+    text-align: left;
+  }
+}
+
+/* ===== Print ===== */
+@media print {
+  .sidebar,
+  .menu-toggle,
+  .chapter-nav,
+  .copy-btn {
+    display: none !important;
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
+  .content {
+    max-width: 100%;
+  }
+}

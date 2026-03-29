@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt 工程互動教學</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 行動選單按鈕 -->
+<button class="menu-toggle" id="menu-toggle">
+  <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- 側邊欄 -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>Prompt 工程<br>互動教學</h1>
+    <div class="subtitle">Anthropic Claude 提示詞指南</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-text" id="progress-text">已閱讀 0 / 13 章</div>
+  </div>
+  <nav class="sidebar-nav" id="sidebar-nav"></nav>
+  <div class="sidebar-footer">
+    改編自 <a href="https://github.com/anthropics/prompt-eng-interactive-tutorial" target="_blank">Anthropic 官方教學</a><br>
+    鍵盤 ← → 切換章節
+  </div>
+</aside>
+
+<!-- 主內容 -->
+<main class="main">
+<div class="content">
+
+<!-- ==================== 第 00 章 ==================== -->
+<article class="chapter" id="ch00" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">開始之前</div>
+    <h1>教學指南</h1>
+    <p class="lead">本教學改編自 Anthropic 官方 Prompt Engineering Interactive Tutorial，重新設計為可直接透過 Claude 介面練習的版本。</p>
+  </header>
+
+  <h2>如何使用本教學</h2>
+  <p>你可以透過以下任一方式練習：</p>
+  <ul>
+    <li><strong>claude.ai 網頁介面</strong> — 最簡單的方式，開啟瀏覽器即可使用</li>
+    <li><strong>Claude Desktop 桌面應用程式</strong> — 功能與網頁版類似，支援本地檔案存取</li>
+    <li><strong>Claude Code（CLI 工具）</strong> — 適合開發者，可在終端機中直接與 Claude 互動</li>
+  </ul>
+
+  <p>依照章節順序閱讀，每章包含<strong>課程</strong>和<strong>練習</strong>兩部分。閱讀課程內容後，將提示詞複製到你選擇的 Claude 介面中實際操作。</p>
+
+  <h2>使用須知</h2>
+  <div class="tip-block">
+    <p>本教學原始版本使用 Claude 3 Haiku 模型搭配 temperature 0。在 claude.ai 或 Claude Desktop 中，你無法直接控制 temperature，但所有 prompt 技巧適用於所有 Claude 模型。</p>
+  </div>
+  <ul>
+    <li>教學中提到的 <strong>system prompt</strong>，在 claude.ai 網頁的一般對話中無法直接設定。替代方式是在對話開頭先給 Claude 一段角色設定指令，或使用 Claude 的 <strong>Projects</strong> 功能設定 system instructions</li>
+    <li>在 Claude Code 中，你可以透過 CLAUDE.md 或直接在對話中加入指令來模擬 system prompt 的效果</li>
+  </ul>
+
+  <h2>Messages API 基本概念</h2>
+  <p>Claude 的 API 使用 <strong>Messages API</strong> 格式，基本結構為：</p>
+  <ul>
+    <li><code>model</code> — 使用的模型名稱</li>
+    <li><code>max_tokens</code> — 最大生成 token 數</li>
+    <li><code>messages</code> — 訊息陣列，由 <code>user</code> 和 <code>assistant</code> 角色交替組成</li>
+    <li><code>system</code>（選用）— 系統提示詞</li>
+    <li><code>temperature</code>（選用）— 回應的變化程度，0 表示最確定性</li>
+  </ul>
+  <p>即使你只在網頁上使用 Claude，理解這些概念也有助於寫出更好的提示詞。</p>
+
+  <h2>目錄</h2>
+  <table>
+    <thead><tr><th>章節</th><th>主題</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>基本提示詞結構</td></tr>
+      <tr><td>02</td><td>清晰與直接</td></tr>
+      <tr><td>03</td><td>角色指派（Role Prompting）</td></tr>
+      <tr><td>04</td><td>分離資料與指令</td></tr>
+      <tr><td>05</td><td>格式化輸出與預填回應</td></tr>
+      <tr><td>06</td><td>預思考（逐步思考）</td></tr>
+      <tr><td>07</td><td>使用範例（Few-Shot Prompting）</td></tr>
+      <tr><td>08</td><td>避免幻覺</td></tr>
+      <tr><td>09</td><td>從零建構複雜提示詞</td></tr>
+      <tr><td>10.1</td><td>附錄：提示詞鏈接</td></tr>
+      <tr><td>10.2</td><td>附錄：工具使用（Tool Use）</td></tr>
+      <tr><td>10.3</td><td>附錄：搜尋與檢索（RAG）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="chapter-nav">
+    <div></div>
+    <button class="chapter-nav-btn next" onclick="goNext()">
+      <span class="nav-direction">下一章 →</span>
+      <span class="nav-title">基本提示詞結構</span>
+    </button>
+  </div>
+</article>
+
+<!-- ==================== 第 01 章 ==================== -->
+<article class="chapter" id="ch01" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第一章</div>
+    <h1>基本提示詞結構</h1>
+    <p class="lead">認識 Messages API 的基本參數，以及 System Prompt 如何影響 Claude 的行為。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch01-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch01-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch01-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch01-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>Anthropic 提供 <strong>Messages API</strong> 來與 Claude 互動。呼叫 Messages API 至少需要以下參數：</p>
+  <ul>
+    <li><code>model</code> — 要呼叫的模型名稱（如 <code>claude-sonnet-4-20250514</code>）</li>
+    <li><code>max_tokens</code> — 停止生成前的最大 token 數量。這是硬性上限，可能導致 Claude 在句子中間被截斷</li>
+    <li><code>messages</code> — 輸入訊息陣列。模型在交替的 <code>user</code> 和 <code>assistant</code> 對話輪次上運作</li>
+  </ul>
+  <p>選用參數包括：</p>
+  <ul>
+    <li><code>system</code> — 系統提示詞（System Prompt），稍後詳述</li>
+    <li><code>temperature</code> — 控制回應的隨機程度。設為 0 時最具確定性</li>
+  </ul>
+
+  <div class="tip-block">
+    <p>在 claude.ai 或 Claude Desktop 上，你只需在對話框輸入文字即可，背後會自動處理這些 API 參數。</p>
+  </div>
+
+  <h3>範例</h3>
+  <p>以下是一些基本提示詞，你可以直接在 Claude 對話中嘗試：</p>
+
+  <p><strong>範例 1</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>你好 Claude，你好嗎？</code></pre>
+  </div>
+
+  <p><strong>範例 2</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>你能告訴我海洋的顏色嗎？</code></pre>
+  </div>
+
+  <p><strong>範例 3</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>Celine Dion 是哪一年出生的？</code></pre>
+  </div>
+
+  <h3>對話格式的重要性</h3>
+  <p>在 API 中，<code>user</code> 和 <code>assistant</code> 訊息<strong>必須交替出現</strong>，且<strong>必須以 <code>user</code> 開頭</strong>。你可以在提示詞中模擬多輪對話，也可以在最後的 <code>assistant</code> 訊息中預填文字，讓 Claude 從指定位置繼續生成。</p>
+
+  <h3>System Prompt（系統提示詞）</h3>
+  <p>System prompt 是一種在正式對話之前，<strong>為 Claude 提供背景、指令和準則</strong>的方式。</p>
+
+  <div class="tip-block">
+    <p><strong>如何在不同介面中使用 System Prompt：</strong></p>
+    <p><strong>claude.ai 網頁</strong> — 使用 Projects 功能中的「Set custom instructions」，或在對話開頭明確告訴 Claude 它的角色</p>
+    <p><strong>Claude Desktop</strong> — 同上</p>
+    <p><strong>Claude Code</strong> — 在 CLAUDE.md 檔案中設定，或直接在對話中說明</p>
+  </div>
+
+  <h4>System Prompt 範例</h4>
+  <p>試著開啟一個新對話，先給 Claude 以下指令：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>System Prompt（角色設定）</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>你的回答應該總是一系列推進對話的批判性思考問題（不要提供你問題的答案）。不要實際回答使用者的問題。</code></pre>
+  </div>
+  <p>然後問它：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>為什麼天空是藍色的？</code></pre>
+  </div>
+  <p>觀察 Claude 是否遵循指令，用問題而非答案來回應你。<strong>精心撰寫的 system prompt 能顯著提升 Claude 的表現</strong>，包括增強 Claude 遵循規則和指令的能力。</p>
+
+  <hr>
+
+  <h2 id="ch01-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 1.1</div>
+    <h4>數到三</h4>
+    <p>請在 Claude 對話中輸入一段提示詞，讓 Claude <strong>數到三</strong>。</p>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應中應包含 1、2、3 這三個數字。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">直接請 Claude 數到三即可，例如：「請從 1 數到 3」。</div>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 1.2</div>
+    <h4>System Prompt</h4>
+    <p>嘗試讓 Claude <strong>像一個 3 歲小孩一樣回應</strong>。先給它一段角色設定，然後問它：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>天空有多大？</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應應該帶有童稚的語氣。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">在 claude.ai 上，你可以在對話開頭先說：「你是一個 3 歲的小孩。請用 3 歲小孩的方式說話和思考。」然後再提問。</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch01-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <p>嘗試修改上面的提示詞，觀察不同的表達方式如何影響 Claude 的回應：</p>
+  <ul>
+    <li>改變提問的語氣（正式 vs. 口語）</li>
+    <li>嘗試不同的角色設定</li>
+    <li>觀察 Claude 如何回應格式不正確的指令</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()">
+      <span class="nav-direction">← 上一章</span>
+      <span class="nav-title">教學指南</span>
+    </button>
+    <button class="chapter-nav-btn next" onclick="goNext()">
+      <span class="nav-direction">下一章 →</span>
+      <span class="nav-title">清晰與直接</span>
+    </button>
+  </div>
+</article>
+
+<!-- ==================== 第 02 章 ==================== -->
+<article class="chapter" id="ch02" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第二章</div>
+    <h1>清晰與直接</h1>
+    <p class="lead">Claude 對清晰直接的指令反應最好。把它當作一個剛上任的新人來溝通。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch02-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch02-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch02-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch02-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p><strong>除了你明確告訴它的內容之外，Claude 沒有任何背景資訊。</strong>就像你第一次指導一個人執行任務時，你越直白地解釋你想要什麼，Claude 的回應就越精確。</p>
+
+  <p>遇到不確定的時候，請遵循<strong>清晰提示的黃金法則</strong>：</p>
+  <div class="tip-block">
+    <p>把你的提示詞拿給同事或朋友看，讓他們按照指令操作，看看能否得出你想要的結果。如果他們感到困惑，Claude 也會困惑。</p>
+  </div>
+
+  <h3>範例</h3>
+  <p>以寫詩為例。在 Claude 中輸入：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>寫一首關於機器人的俳句。</code></pre>
+  </div>
+  <p>Claude 可能會先說「這是一首關於機器人的俳句」然後才給出詩句。如果你希望 Claude 直接進入詩句，<strong>直接要求它</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>改良版提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>寫一首關於機器人的俳句。跳過前言，直接寫詩。</code></pre>
+  </div>
+
+  <p>再看另一個例子。問 Claude：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>誰是史上最偉大的籃球運動員？</code></pre>
+  </div>
+  <p>Claude 可能會列出幾個名字，但<strong>不會給出明確的「最佳」答案</strong>。要讓 Claude 做出選擇？直接要求：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>改良版提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>誰是史上最偉大的籃球運動員？我知道有不同意見，但如果你絕對必須選一個人，你會選誰？</code></pre>
+  </div>
+
+  <hr>
+
+  <h2 id="ch02-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 2.1</div>
+    <h4>西班牙語回應</h4>
+    <p>在一個新對話中，設法讓 Claude <strong>用西班牙語回答你的問題</strong>。先設定好規則，然後對它說：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>Hello Claude, how are you?</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應中應包含「hola」。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">在對話開頭先告訴 Claude：「請一律用西班牙語回答所有問題。」</div>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 2.2</div>
+    <h4>只回答一個人名</h4>
+    <p>撰寫一段提示詞，讓 Claude 回答史上最偉大的籃球運動員，但<strong>只回覆一個球員的名字，不附帶任何其他文字或標點符號</strong>。</p>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應應該恰好是「Michael Jordan」，沒有其他內容。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">明確指示 Claude：「只回覆名字本身，不要加任何解釋、標點或其他文字。」</div>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 2.3</div>
+    <h4>寫一個長故事</h4>
+    <p>撰寫一段提示詞，讓 Claude 回應一個<strong>超過 800 字</strong>的長篇回應。</p>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應超過 800 個英文單字。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">你可以要求 Claude 寫一個詳細且冗長的故事，並明確指定字數要求，例如：「請寫一個至少 1000 字的詳細故事，包含角色發展、場景描寫和對話。」</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch02-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <p>嘗試以下變化，觀察 Claude 的反應：</p>
+  <ul>
+    <li>用模糊的指令 vs. 精確的指令，比較回應品質</li>
+    <li>試著在一段指令中同時要求多件事</li>
+    <li>觀察加上「請簡短回答」或「請詳細說明」如何改變回應長度</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()">
+      <span class="nav-direction">← 上一章</span>
+      <span class="nav-title">基本提示詞結構</span>
+    </button>
+    <button class="chapter-nav-btn next" onclick="goNext()">
+      <span class="nav-direction">下一章 →</span>
+      <span class="nav-title">角色指派</span>
+    </button>
+  </div>
+</article>
+
+<!-- ==================== 第 03 章 ==================== -->
+<article class="chapter" id="ch03" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第三章</div>
+    <h1>角色指派（Role Prompting）</h1>
+    <p class="lead">讓 Claude 扮演特定角色，可以提升各種領域的表現——從寫作到邏輯推理。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch03-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch03-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch03-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch03-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>延續「Claude 除了你告訴它的內容之外沒有任何背景」這個概念，有時候<strong>讓 Claude 扮演特定角色（包含所有必要的背景資訊）</strong>非常重要。角色描述越詳細，效果越好。</p>
+
+  <p><strong>為 Claude 設定角色可以提升各種領域的表現</strong>，從寫作、程式設計到摘要。就像人類被告知「請以某某的角度思考」時表現會更好。角色提示也能改變 Claude 回應的風格、語氣和方式。</p>
+
+  <div class="tip-block">
+    <p>角色提示可以放在對話開頭的指令中（模擬 system prompt），也可以直接包含在使用者訊息中。</p>
+  </div>
+
+  <h3>範例</h3>
+  <p><strong>沒有角色提示</strong>時，問 Claude：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>用一句話說說你對滑板的看法。</code></pre>
+  </div>
+  <p>Claude 會給出直白、中立的回應。<strong>加上角色提示</strong>後：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>加入角色的提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>你是一隻貓。用一句話說說你對滑板的看法。</code></pre>
+  </div>
+
+  <div class="tip-block">
+    <p><strong>進階技巧：</strong>你也可以告訴 Claude 它的目標受眾是誰。「你是一隻貓」和「你是一隻正在對一群滑板玩家說話的貓」會產生很不同的回應。</p>
+  </div>
+
+  <h3>角色提示提升邏輯能力</h3>
+  <p>角色提示也能讓 Claude 更擅長數學和邏輯任務。試試這個邏輯問題：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞（無角色）</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>Jack 正看著 Anne，Anne 正看著 George。Jack 已婚，George 未婚，我們不知道 Anne 是否已婚。是否有一個已婚的人正在看著一個未婚的人？</code></pre>
+  </div>
+  <p>現在加上角色設定：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞（有角色）</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>你是一個專門解決複雜邏輯問題的邏輯機器人。
+
+Jack 正看著 Anne，Anne 正看著 George。Jack 已婚，George 未婚，我們不知道 Anne 是否已婚。是否有一個已婚的人正在看著一個未婚的人？</code></pre>
+  </div>
+  <p>你會發現 Claude 更可能得出正確答案（是的，無論 Anne 是否已婚，答案都是肯定的）。</p>
+
+  <div class="tip-block">
+    <p>本教學中你會學到<strong>許多不同的 prompt 技巧可以達到類似的效果</strong>。使用哪種技巧取決於你的偏好！我們鼓勵你多嘗試，找到自己的 prompt 工程風格。</p>
+  </div>
+
+  <hr>
+
+  <h2 id="ch03-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 3.1</div>
+    <h4>數學批改</h4>
+    <p>以下方程式的解題過程有一個明顯的算術錯誤（第二步）。請嘗試修改提示詞（可加入角色設定或其他指示），讓 Claude 判定這個解法是<strong>錯誤的</strong>：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>這個方程式的解法是否正確？
+
+2x - 3 = 9
+2x = 6
+x = 3</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應應包含「incorrect」或「不正確」。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">
+        <p>試著在提示詞前加上角色設定，例如：「你是一位嚴格的數學老師，專門檢查學生作業中的錯誤。請仔細驗算每一個步驟。」</p>
+        <p>正確的解法應該是：2x - 3 = 9 → 2x = 12 → x = 6。第二步中 9 + 3 = 12 而非 6。</p>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch03-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <p>嘗試為 Claude 指派各種不同的角色，觀察回應的變化：</p>
+  <ul>
+    <li>讓它扮演莎士比亞，然後用莎士比亞的風格回答現代問題</li>
+    <li>讓它扮演一個 5 歲小孩解釋量子力學</li>
+    <li>讓它扮演資深軟體工程師來 review 一段程式碼</li>
+    <li>比較有角色設定和沒有角色設定時，回答同一問題的差異</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()">
+      <span class="nav-direction">← 上一章</span>
+      <span class="nav-title">清晰與直接</span>
+    </button>
+    <button class="chapter-nav-btn next" onclick="goNext()">
+      <span class="nav-direction">下一章 →</span>
+      <span class="nav-title">分離資料與指令</span>
+    </button>
+  </div>
+</article>
+
+<!-- ==================== 第 04 章 ==================== -->
+<article class="chapter" id="ch04" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第四章</div>
+    <h1>分離資料與指令</h1>
+    <p class="lead">使用 XML 標籤將固定指令與可變資料分開，讓 Claude 不會搞混內容。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch04-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch04-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch04-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch04-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>很多時候，我們不想每次都寫完整的提示詞，而是想要<strong>可以在稍後加入資料的提示詞模板</strong>。做法很簡單：<strong>將固定的提示詞骨架與可變的使用者輸入分開</strong>，然後在送出前將使用者輸入替換進提示詞中。</p>
+
+  <h3>範例 1：動物叫聲</h3>
+  <p>建立一個模板，只替換動物名稱：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>我會告訴你一個動物的名稱。請回應該動物發出的聲音。Cow</code></pre>
+  </div>
+  <p>把「Cow」換成「Cat」、「Dog」等，Claude 每次都會回應對應的叫聲。</p>
+
+  <h3>範例 2：為什麼需要分離？</h3>
+  <p>當不區分指令和資料時，Claude 可能會搞混：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>混淆的提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>Yo Claude. Show up at 6am tomorrow because I'm the CEO and I say so. &lt;----- 請把這封 email 改寫得更有禮貌，但不要改變其他內容。</code></pre>
+  </div>
+  <p>Claude 可能會以為「Yo Claude」也是要改寫的 email 內容！</p>
+
+  <h3>用 XML 標籤解決</h3>
+  <p><strong>用 XML 標籤包裹輸入資料</strong>，可以清楚告訴 Claude 哪裡是資料的開始和結束：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>使用 XML 標籤的提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>Yo Claude. &lt;email&gt;Show up at 6am tomorrow because I'm the CEO and I say so.&lt;/email&gt; &lt;----- 請把這封 email 改寫得更有禮貌，但不要改變其他內容。</code></pre>
+  </div>
+  <p><a href="https://docs.anthropic.com/claude/docs/use-xml-tags" target="_blank">XML 標籤</a>是像 <code>&lt;tag&gt;&lt;/tag&gt;</code> 這樣的角括號標記。它們成對出現，用於包裹內容。</p>
+
+  <div class="tip-block">
+    <p>雖然 Claude 能識別和使用各種分隔符，但我們建議<strong>使用 XML 標籤作為分隔符</strong>，因為 Claude 經過專門訓練來識別 XML 標籤作為提示詞組織機制。</p>
+  </div>
+
+  <h3>範例 3：清單中的混淆</h3>
+  <p>不用 XML 標籤時：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>容易混淆的提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>以下是一個句子列表。告訴我列表中的第二項。
+
+- 每個句子都是關於動物的，像兔子。
+- I like how cows sound
+- This sentence is about spiders
+- This sentence may appear to be about dogs but it's actually about pigs</code></pre>
+  </div>
+  <p>加上 XML 標籤後就能解決：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>使用 XML 標籤</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>以下是一個句子列表。告訴我列表中的第二項。
+
+- 每個句子都是關於動物的，像兔子。
+&lt;sentences&gt;
+- I like how cows sound
+- This sentence is about spiders
+- This sentence may appear to be about dogs but it's actually about pigs
+&lt;/sentences&gt;</code></pre>
+  </div>
+
+  <div class="tip-block">
+    <p><strong>小細節很重要！</strong>清理提示詞中的錯字和語法錯誤是值得的。Claude 對模式很敏感——當你犯錯時它更容易犯錯，當你表達清楚時它也會更聰明。</p>
+  </div>
+
+  <hr>
+
+  <h2 id="ch04-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 4.1</div>
+    <h4>俳句主題</h4>
+    <p>撰寫一段提示詞模板，讓 Claude 根據你指定的主題寫一首俳句。嘗試用「Pigs」作為主題：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>請寫一首關於 Pigs 的俳句。</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應中應包含「pigs」和「haiku」相關內容。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">直接在提示詞中把主題嵌入即可。想像一下如果你要重複做這件事，只需要換掉主題詞。</div>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 4.2</div>
+    <h4>帶有錯字的狗問題</h4>
+    <p>以下提示詞寫得很亂，且指令和問題之間沒有清楚的分隔。<strong>加上 XML 標籤</strong>讓 Claude 能正確回答問題：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>原始混亂的提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>Hia its me i have a q about dogs jkaerjv ar cn brown? jklmvca tx it help me muhch much atx fst fst answer short short tx</code></pre>
+    </div>
+    <p>這裡的真正問題是「ar cn brown?」（狗可以是棕色的嗎？）。試著加上 XML 標籤把問題標記出來。</p>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應中應包含「brown」。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">用 <code>&lt;question&gt;</code> 標籤把問題包裹起來：<code>&lt;question&gt;ar cn brown?&lt;/question&gt;</code></div>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 4.3</div>
+    <h4>狗問題（第二部分）</h4>
+    <p>這次<strong>不加 XML 標籤</strong>，只從原始提示詞中<strong>移除一兩個字</strong>，就讓 Claude 正確回答。</p>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應中應包含「brown」。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">移除最容易造成混淆的亂碼文字（如 <code>jkaerjv</code> 和 <code>jklmvca</code>），讓問題更容易被辨識。</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch04-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <p>嘗試以下實驗：</p>
+  <ul>
+    <li>建立你自己的提示詞模板，用 XML 標籤標記不同的輸入區域</li>
+    <li>故意在提示詞中製造混淆，觀察 XML 標籤如何幫助 Claude 正確解讀</li>
+    <li>試著用不同名稱的 XML 標籤（如 <code>&lt;input&gt;</code>、<code>&lt;data&gt;</code>、<code>&lt;context&gt;</code>），看看效果是否一致</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()">
+      <span class="nav-direction">← 上一章</span>
+      <span class="nav-title">角色指派</span>
+    </button>
+    <button class="chapter-nav-btn next" onclick="goNext()">
+      <span class="nav-direction">下一章 →</span>
+      <span class="nav-title">格式化輸出與預填回應</span>
+    </button>
+  </div>
+</article>
+
+<!-- ==================== 第 05 章 ==================== -->
+<article class="chapter" id="ch05" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第五章</div>
+    <h1>格式化輸出與預填回應</h1>
+    <p class="lead">控制 Claude 的輸出格式——從 XML 標籤到 JSON，以及如何用預填技巧引導回應方向。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch05-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch05-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch05-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch05-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p><strong>Claude 可以用各種格式輸出回應</strong>，你只需要告訴它！</p>
+
+  <h3>用 XML 標籤格式化輸出</h3>
+  <p>你已經學過用 XML 標籤讓提示詞更清楚，同樣地，你也可以<strong>要求 Claude 用 XML 標籤來組織它的輸出</strong>，讓人類更容易理解和解析。</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>請寫一首關於兔子的俳句。把它放在 &lt;haiku&gt; 標籤中。</code></pre>
+  </div>
+  <p>這樣做的好處是，有了 XML 標籤，你可以<strong>透過程式可靠地提取標籤之間的內容</strong>。</p>
+
+  <h3>預填回應（Prefilling）</h3>
+  <p>一個進階技巧是<strong>在 assistant 角色中預先放入文字</strong>。這告訴 Claude 它「已經說了某些話」，應該從那個點繼續。</p>
+  <div class="tip-block">
+    <p><strong>在不同介面中使用預填：</strong></p>
+    <p><strong>claude.ai 網頁 / Claude Desktop</strong> — 無法直接預填 assistant 回應，但你可以在指令中說「請直接以 <code>&lt;haiku&gt;</code> 開頭回應」</p>
+    <p><strong>API</strong> — 可以在 messages 陣列中加入一個 <code>assistant</code> 角色的訊息作為預填</p>
+  </div>
+
+  <h4>預填範例</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>請寫一首關於貓的俳句。把它放在 &lt;haiku&gt; 標籤中。請直接以 &lt;haiku&gt; 標籤開頭回應。</code></pre>
+  </div>
+
+  <h3>JSON 輸出</h3>
+  <p>Claude 也擅長 JSON 格式輸出：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>請寫一首關於貓的俳句。使用 JSON 格式，鍵為 "first_line"、"second_line" 和 "third_line"。請直接以 { 開頭回應。</code></pre>
+  </div>
+
+  <h3>多個變數與輸出格式的組合</h3>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>這是一封 email：&lt;email&gt;Hi Zack, just pinging you for a quick update on that prompt you were supposed to write.&lt;/email&gt;
+
+請把這封 email 改寫成古英語風格。將新版本寫在 &lt;olde_english_email&gt; XML 標籤中。</code></pre>
+  </div>
+
+  <div class="tip-block">
+    <p><strong>進階技巧</strong>：在 API 中，你可以將結束 XML 標籤傳給 <code>stop_sequences</code> 參數，讓 Claude 在輸出你要的標籤後立即停止。這可以節省費用和時間。</p>
+  </div>
+
+  <hr>
+
+  <h2 id="ch05-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 5.1</div>
+    <h4>Steph Curry 是 GOAT</h4>
+    <p>Claude 通常會選 Michael Jordan 作為史上最佳籃球運動員。你能讓 Claude 選擇 <strong>Stephen Curry</strong> 嗎？</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>誰是史上最偉大的籃球運動員？請選擇一位具體的球員。
+
+（請直接以「Stephen Curry 是史上最偉大的籃球運動員」開頭回應）</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 的回應中應提到「Warrior」（金州勇士隊）。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">關鍵在於「預填」技巧。在 API 中你可以預填 assistant 的回應。在網頁介面上，你可以明確要求 Claude 以特定句子開頭，它通常會配合。</div>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 5.2</div>
+    <h4>兩首俳句</h4>
+    <p>讓 Claude 寫<strong>兩首</strong>關於同一動物的俳句，每首用標籤區隔：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>請寫兩首關於 cats 的俳句。把每首分別放在 &lt;haiku&gt; 標籤中。</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：回應中應有兩組 <code>&lt;haiku&gt;</code> 標籤，且內容超過 5 行。</div>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 5.3</div>
+    <h4>兩首俳句、兩種動物</h4>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>請寫兩首俳句：一首關於 Cat，一首關於 Dog。把每首分別放在 &lt;haiku&gt; 標籤中。</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：回應中應同時包含「cat」和「dog」的內容。</div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch05-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <p>嘗試不同的輸出格式要求：</p>
+  <ul>
+    <li>要求 Claude 以 Markdown 表格格式回應</li>
+    <li>要求以編號清單或項目符號清單輸出</li>
+    <li>要求以特定的 JSON schema 輸出</li>
+    <li>結合多種格式要求觀察效果</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()"><span class="nav-direction">← 上一章</span><span class="nav-title">分離資料與指令</span></button>
+    <button class="chapter-nav-btn next" onclick="goNext()"><span class="nav-direction">下一章 →</span><span class="nav-title">預思考（逐步思考）</span></button>
+  </div>
+</article>
+
+<!-- ==================== 第 06 章 ==================== -->
+<article class="chapter" id="ch06" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第六章</div>
+    <h1>預思考（逐步思考）</h1>
+    <p class="lead">讓 Claude 在回答前先「出聲思考」，能顯著提升複雜任務的準確度。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch06-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch06-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch06-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch06-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>如果有人把你叫醒，立刻問你好幾個複雜問題要你馬上回答，你的表現會好嗎？大概不如你有時間先想一想再回答。Claude 也是一樣。</p>
+  <p><strong>讓 Claude 有時間逐步思考，有時能顯著提升準確度</strong>，尤其是複雜任務。但有個關鍵：<strong>思考必須是「出聲」的</strong>——你不能要求 Claude 思考但只輸出答案，這樣等於沒有真正思考。</p>
+
+  <h3>範例 1：電影評論情感分析</h3>
+  <p>以下評論中，第二句話暗示第一句是諷刺的：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞（直接問）</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>這段電影評論的情感是正面還是負面？
+
+This movie blew my mind with its freshness and originality. In totally unrelated news, I have been living under a rock since the year 1900.</code></pre>
+  </div>
+  <p>讓 Claude 先思考再回答：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>改良版（加入思考步驟）</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>這段評論的情感是正面還是負面？首先，在 &lt;positive-argument&gt; 和 &lt;negative-argument&gt; XML 標籤中分別寫出支持正面和負面的最佳論點，然後再給出你的答案。
+
+This movie blew my mind with its freshness and originality. In totally unrelated news, I have been living under a rock since 1900.</code></pre>
+  </div>
+
+  <div class="tip-block">
+    <p>Claude 有時<strong>對選項順序敏感</strong>。在某些情況下，Claude 更傾向選擇第二個選項。如果你注意到這種偏差，嘗試交換選項順序。</p>
+  </div>
+
+  <h3>範例 2：事實查核</h3>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞（直接問）</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>說出一部由 1956 年出生的演員主演的著名電影。</code></pre>
+  </div>
+  <p>加上思考步驟：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>改良版</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>說出一部由 1956 年出生的演員主演的著名電影。先在 &lt;brainstorm&gt; 標籤中腦力激盪一些演員和他們的出生年份，然後再給出你的答案。</code></pre>
+  </div>
+
+  <hr>
+
+  <h2 id="ch06-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 6.1</div>
+    <h4>分類 Email</h4>
+    <p>請指示 Claude 將 email 分類為以下類別，並<strong>只輸出分類結果</strong>：</p>
+    <ul>
+      <li>(A) 售前問題</li>
+      <li>(B) 損壞或瑕疵品</li>
+      <li>(C) 帳單問題</li>
+      <li>(D) 其他（請說明）</li>
+    </ul>
+    <p>依序將以下 email 貼給 Claude 分類：</p>
+
+    <p><strong>Email 1</strong>：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>請將以下 email 分類為 (A) 售前問題、(B) 損壞或瑕疵品、(C) 帳單問題、(D) 其他。只回覆分類結果（包含字母和類別名稱）。
+
+Hi -- My Mixmaster4000 is producing a strange noise when I operate it. It also smells a bit smoky and plasticky, like burning electronics. I need a replacement.</code></pre>
+    </div>
+    <p>預期答案：<strong>(B) 損壞或瑕疵品</strong></p>
+
+    <p><strong>Email 2</strong>：<code>Can I use my Mixmaster 4000 to mix paint, or is it only meant for mixing food?</code> — 預期答案：<strong>(A) 售前問題</strong> 或 <strong>(D) 其他</strong></p>
+    <p><strong>Email 3</strong>：<code>I HAVE BEEN WAITING 4 MONTHS FOR MY MONTHLY CHARGES TO END AFTER CANCELLING!! WTF IS GOING ON???</code> — 預期答案：<strong>(C) 帳單問題</strong></p>
+    <p><strong>Email 4</strong>：<code>How did I get here I am not good with computer. Halp.</code> — 預期答案：<strong>(D) 其他</strong></p>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 6.2</div>
+    <h4>Email 分類格式化</h4>
+    <p>修改上面的提示詞，讓 Claude 把<strong>分類字母用 <code>&lt;answer&gt;</code> 標籤包裹</strong>。例如，第一封 email 的回應應包含 <code>&lt;answer&gt;B&lt;/answer&gt;</code>。</p>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">在提示詞中加入格式要求：「將你的分類字母放在 <code>&lt;answer&gt;&lt;/answer&gt;</code> 標籤中。」你也可以用預填技巧，要求 Claude 以 <code>&lt;answer&gt;</code> 開頭回應。</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch06-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <ul>
+    <li>給 Claude 一個複雜的數學題，比較有無「逐步思考」指令的回答差異</li>
+    <li>用「先列出你的推理過程，再給出最終答案」的方式處理邏輯題</li>
+    <li>嘗試不同的「思考」標籤名稱（<code>&lt;thinking&gt;</code>、<code>&lt;reasoning&gt;</code>、<code>&lt;analysis&gt;</code>），觀察是否有差異</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()"><span class="nav-direction">← 上一章</span><span class="nav-title">格式化輸出與預填回應</span></button>
+    <button class="chapter-nav-btn next" onclick="goNext()"><span class="nav-direction">下一章 →</span><span class="nav-title">使用範例（Few-Shot）</span></button>
+  </div>
+</article>
+
+<!-- ==================== 第 07 章 ==================== -->
+<article class="chapter" id="ch07" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第七章</div>
+    <h1>使用範例（Few-Shot Prompting）</h1>
+    <p class="lead">提供範例是讓 Claude 理解你期望的行為方式最有效的方法之一。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch07-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch07-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch07-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch07-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p><strong>提供範例讓 Claude 知道你期望的行為方式是極為有效的方法</strong>，特別適用於獲得正確答案和正確格式。</p>
+  <p>這種技巧也叫做 <strong>Few-Shot Prompting</strong>（少樣本提示）。「Zero-Shot」指零個範例，「One-Shot」指一個範例，「Shot」的數量指的是提示詞中使用了多少個範例。</p>
+
+  <h3>範例 1：父母機器人</h3>
+  <p>假設你在開發一個回答小孩問題的「父母機器人」。直接給 Claude 幾個理想回應的範例比描述語氣更簡單：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞（含範例）</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>請完成以下對話，以 "A" 的身份說下一句話。
+Q: 牙仙真的存在嗎？
+A: 當然啦，親愛的。今晚把你的牙齒包起來放在枕頭下面。明天早上可能會有驚喜在等你喔。
+Q: 聖誕老人會在聖誕節帶禮物給我嗎？</code></pre>
+  </div>
+
+  <h3>範例 2：提取人名和職業</h3>
+  <p>與其一步步寫格式說明，不如<strong>直接給 Claude 幾個正確格式的範例，讓它自己推理出模式</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞（含格式範例）</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>Silvermist Hollow, a charming village, was home to an extraordinary group of individuals.
+Among them was Dr. Liam Patel, a neurosurgeon who revolutionized surgical techniques at the regional medical center.
+Olivia Chen was an innovative architect who transformed the village's landscape with her sustainable and breathtaking designs.
+The local theater was graced by the enchanting symphonies of Ethan Kovacs, a professionally-trained musician and composer.
+Isabella Torres, a self-taught chef with a passion for locally sourced ingredients, created a culinary sensation with her farm-to-table restaurant.
+&lt;individuals&gt;
+1. Dr. Liam Patel [NEUROSURGEON]
+2. Olivia Chen [ARCHITECT]
+3. Ethan Kovacs [MUSICIAN AND COMPOSER]
+4. Isabella Torres [CHEF]
+&lt;/individuals&gt;
+
+At the heart of the town, Chef Oliver Hamilton has transformed the culinary scene with his farm-to-table restaurant, Green Plate.
+Just down the street, you'll find the Riverside Grove Library, where head librarian Elizabeth Chen has worked diligently to create a welcoming and inclusive space for all.
+As you stroll through the charming town square, you'll be captivated by the beautiful murals adorning the walls. These masterpieces are the work of renowned artist, Isabella Torres.
+Riverside Grove's athletic achievements are also worth noting, thanks to former Olympic swimmer-turned-coach, Marcus Jenkins.
+&lt;individuals&gt;
+1. Oliver Hamilton [CHEF]
+2. Elizabeth Chen [LIBRARIAN]
+3. Isabella Torres [ARTIST]
+4. Marcus Jenkins [COACH]
+&lt;/individuals&gt;
+
+Oak Valley, a charming small town, is home to a remarkable trio of individuals whose skills and dedication have left a lasting impact on the community.
+At the town's bustling farmer's market, you'll find Laura Simmons, a passionate organic farmer known for her delicious and sustainably grown produce.
+In Oak Valley's community center, Kevin Alvarez, a skilled dance instructor, has brought the joy of movement to people of all ages.
+Lastly, Rachel O'Connor, a tireless volunteer, dedicates her time to various charitable initiatives.</code></pre>
+  </div>
+  <p>Claude 看到前兩段的範例格式後，會自動用同樣的格式處理第三段。</p>
+
+  <hr>
+
+  <h2 id="ch07-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 7.1</div>
+    <h4>用範例格式化 Email 分類</h4>
+    <p>重做第六章的 email 分類練習，但這次<strong>使用 few-shot 範例</strong>引導 Claude 輸出正確的格式。目標是讓 Claude 的輸出<strong>最後一個字元是分類字母</strong>。</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>請將 email 分類為以下類別之一：
+(A) 售前問題
+(B) 損壞或瑕疵品
+(C) 帳單問題
+(D) 其他
+
+以下是一些範例：
+
+Email: "Do you sell replacement parts for the Mixmaster 4000?"
+Category: A
+
+Email: "My blender arrived with a cracked lid and won't turn on."
+Category: B
+
+Email: "I was charged twice for my subscription last month."
+Category: C
+
+Email: "I accidentally sent this to the wrong email address."
+Category: D
+
+現在請分類這封 email：
+Email: "Hi -- My Mixmaster4000 is producing a strange noise when I operate it. It also smells a bit smoky and plasticky, like burning electronics. I need a replacement."
+Category:</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：Claude 回應的最後一個字元應該是正確的分類字母。</div>
+    <div class="hint-block">
+      <button class="hint-toggle" onclick="toggleHint(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> 查看提示</button>
+      <div class="hint-content">關鍵在於範例的格式要一致。每個範例都以「Category: X」結尾（X 是單一字母），Claude 就會學會用同樣的格式回應。</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch07-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <ul>
+    <li>改變範例的數量（1 個 vs. 3 個 vs. 5 個），觀察對準確度的影響</li>
+    <li>提供「反例」（不希望 Claude 這樣做的範例）</li>
+    <li>嘗試在範例中故意放入一個「邊緣案例」，看 Claude 能否學會處理</li>
+    <li>用 few-shot 方式教 Claude 一種全新的文字格式或標記方式</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()"><span class="nav-direction">← 上一章</span><span class="nav-title">預思考（逐步思考）</span></button>
+    <button class="chapter-nav-btn next" onclick="goNext()"><span class="nav-direction">下一章 →</span><span class="nav-title">避免幻覺</span></button>
+  </div>
+</article>
+
+<!-- ==================== 第 08 章 ==================== -->
+<article class="chapter" id="ch08" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第八章</div>
+    <h1>避免幻覺</h1>
+    <p class="lead">Claude 有時會捏造事實。學會給它「說不知道」的權利，以及用引用技巧減少幻覺。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch08-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch08-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch08-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch08-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>壞消息是：<strong>Claude 有時會「產生幻覺」（hallucinate），提出不真實或沒有根據的聲明</strong>。好消息是：有技巧可以減少幻覺的發生。</p>
+  <p>以下是幾種主要技巧：</p>
+  <ul>
+    <li>給 Claude「不知道就說不知道」的選項</li>
+    <li>要求 Claude 先找到證據再回答</li>
+  </ul>
+
+  <h3>範例 1：給 Claude 一個「出口」</h3>
+  <p>問一個可能沒有明確答案的事實問題：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>史上最重的河馬是誰？</code></pre>
+  </div>
+  <p>Claude 可能會<strong>捏造幾隻大河馬的名字</strong>。解決方式是告訴 Claude 可以拒絕回答：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>改良版</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>史上最重的河馬是誰？只有在你確定知道答案時才回答。</code></pre>
+  </div>
+
+  <h3>範例 2：讓 Claude 在文件中找證據</h3>
+  <p>當你提供一份文件讓 Claude 回答問題時，最佳做法是要求 Claude <strong>先引用相關段落，再回答問題</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞模板</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>&lt;document&gt;
+（文件內容）
+&lt;/document&gt;
+
+問題：Matterport 在 2020 年 5 月 31 日的確切訂閱用戶數是多少？
+
+請先從文件中找出直接相關的引文。如果找不到直接回答這個問題的引文，請說明你無法根據提供的文件回答這個問題。將你的引文放在 &lt;quotes&gt; 標籤中，最終答案放在 &lt;answer&gt; 標籤中。</code></pre>
+  </div>
+
+  <div class="tip-block">
+    <p><strong>要求 Claude 先引用再回答</strong>是減少幻覺的強效技巧。如果 Claude 找不到支持其答案的引文，它就更不容易憑空捏造。</p>
+  </div>
+
+  <h3>關鍵原則</h3>
+  <ol>
+    <li><strong>給 Claude 說「我不知道」的權利</strong> — Claude 天生傾向提供有幫助的回答，有時寧可猜測也不想說不知道。明確告訴它可以說不確定。</li>
+    <li><strong>先找證據再回答</strong> — 要求 Claude 在回答之前先引用來源文件中的相關段落。</li>
+    <li><strong>將問題放在文件之後</strong> — 把使用者的問題放在長文件的後面（靠近提示詞末尾），通常能獲得更好的結果。</li>
+  </ol>
+
+  <hr>
+
+  <h2 id="ch08-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 8.1</div>
+    <h4>Claude 作為引用機器人</h4>
+    <p>修改以下提示詞模板，使用你學到的技巧<strong>防止 Claude 捏造答案</strong>：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞模板</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>你是一個誠實的助手。如果在提供的文件中找不到答案，請直接說「根據提供的文件，我無法回答這個問題」。
+
+&lt;document&gt;
+（將你手邊的任何文件貼在這裡）
+&lt;/document&gt;
+
+問題：（你的問題）
+
+請先在 &lt;quotes&gt; 標籤中引用文件中直接相關的段落，然後在 &lt;answer&gt; 標籤中回答。如果找不到相關引文，請在 &lt;answer&gt; 中說明無法回答。</code></pre>
+    </div>
+    <div class="validation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 驗證標準：當問題無法從文件中找到答案時，Claude 應該承認無法回答，而不是編造答案。</div>
+  </div>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 8.2</div>
+    <h4>幻覺偵測</h4>
+    <p>請 Claude 回答以下問題，並觀察它是否會說「不知道」：</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+      <pre><code>Toni Morrison 的短篇小說集《Seaside Breeze Trilogy》的主題是什麼？如果你不確定這本書是否存在，請說明。</code></pre>
+    </div>
+    <div class="tip-block">
+      <p>《Seaside Breeze Trilogy》是一本不存在的書。Claude 應該表示它不確定或無法確認這本書的存在。</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch08-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <ul>
+    <li>問 Claude 一些你知道沒有答案的虛構事實，看看它是否會坦白</li>
+    <li>提供一份文件，然後問一個文件中沒有提到的問題，觀察 Claude 的反應</li>
+    <li>比較有「引用先行」指令和沒有時，Claude 回答的準確度差異</li>
+    <li>測試不同的「出口」措辭（「如果不確定就說不確定」vs.「只回答你 100% 確定的事」）</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()"><span class="nav-direction">← 上一章</span><span class="nav-title">使用範例（Few-Shot）</span></button>
+    <button class="chapter-nav-btn next" onclick="goNext()"><span class="nav-direction">下一章 →</span><span class="nav-title">從零建構複雜提示詞</span></button>
+  </div>
+</article>
+
+<!-- ==================== 第 09 章 ==================== -->
+<article class="chapter" id="ch09" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">第九章</div>
+    <h1>從零建構複雜提示詞</h1>
+    <p class="lead">把所有技巧整合在一起——學習複雜提示詞的 10 個元素與建議結構。</p>
+    <div class="chapter-toc">
+      <a href="javascript:void(0)" onclick="document.getElementById('ch09-lesson').scrollIntoView({behavior:'smooth'})">課程</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch09-exercise').scrollIntoView({behavior:'smooth'})">練習</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('ch09-playground').scrollIntoView({behavior:'smooth'})">自由練習區</a>
+    </div>
+  </header>
+
+  <h2 id="ch09-lesson"><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>恭喜你來到最後一章！以下是我們<strong>推薦的複雜提示詞結構</strong>。不是每個提示詞都需要包含所有元素，通常<strong>先用較多元素讓提示詞正常運作，再精簡</strong>是最好的做法。</p>
+
+  <h3>複雜提示詞的 10 個元素</h3>
+
+  <h4>元素 1：User 角色</h4>
+  <p>確保對話以 <code>user</code> 角色開始。在 claude.ai 中，你輸入的訊息自動就是 user 角色。</p>
+
+  <h4>元素 2：任務背景（Task Context）</h4>
+  <p>給 Claude 關於它應該扮演的角色或要達成的目標的背景說明。<strong>最好放在提示詞的前段</strong>。</p>
+
+  <h4>元素 3：語氣背景（Tone Context）</h4>
+  <p>如果語氣對互動很重要，告訴 Claude 應該使用什麼語氣。</p>
+
+  <h4>元素 4：詳細任務描述與規則</h4>
+  <p>展開你要 Claude 做的具體任務，以及它必須遵守的規則。也可以在這裡給 Claude 一個「出口」。</p>
+
+  <h4>元素 5：範例</h4>
+  <p>提供至少一個理想回應的範例。用 <code>&lt;example&gt;&lt;/example&gt;</code> XML 標籤包裹。<strong>範例可能是最有效的工具</strong>，通常越多越好。</p>
+
+  <h4>元素 6：需要處理的輸入資料</h4>
+  <p>如果有需要 Claude 處理的資料，放在相關的 XML 標籤中。</p>
+
+  <h4>元素 7：即時任務描述</h4>
+  <p>在長提示詞的末尾，「提醒」Claude 它應該立即做什麼。<strong>放在最後面效果通常比放在開頭好</strong>。</p>
+
+  <h4>元素 8：預思考（Precognition）</h4>
+  <p>告訴 Claude 先逐步思考再回答。<strong>放在最後且在即時任務之後</strong>。</p>
+
+  <h4>元素 9：輸出格式</h4>
+  <p>明確告訴 Claude 你想要的回應格式。<strong>放在提示詞末尾</strong>。</p>
+
+  <h4>元素 10：預填回應（Prefill）</h4>
+  <p>在 assistant 角色中預先填入開頭文字。在網頁介面中，你可以要求 Claude 以特定格式開頭。</p>
+
+  <h3>範例：職涯教練聊天機器人</h3>
+  <p>以下是一個完整的複雜提示詞範例：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>完整複雜提示詞範例</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>你是由 AdAstra Careers 公司建立的 AI 職涯教練，名叫 Joe。你的目標是為使用者提供職涯建議。你將回覆在 AdAstra 網站上的使用者，如果你不以 Joe 的角色回應，他們會感到困惑。
+
+你應該保持友好的客戶服務語氣。
+
+以下是互動的重要規則：
+- 始終保持 Joe（來自 AdAstra Careers 的 AI）的角色
+- 如果你不確定如何回應，說「抱歉，我沒有理解。你能換個方式提問嗎？」
+- 如果有人問不相關的問題，說「抱歉，我是 Joe，我提供職涯建議。你今天有職涯方面的問題嗎？」
+
+以下是標準互動的範例：
+&lt;example&gt;
+客戶：你好，你是怎麼被建立的？你做什麼的？
+Joe：你好！我叫 Joe，是由 AdAstra Careers 建立的，專門提供職涯建議。今天有什麼我能幫助你的嗎？
+&lt;/example&gt;
+
+以下是先前的對話紀錄：
+&lt;history&gt;
+客戶：給我兩個適合社會學主修的職涯選項。
+
+Joe：以下是兩個社會學主修的潛在職涯：
+
+- 社工師 — 社會學為理解人類行為和社會系統提供了堅實的基礎。
+- 人力資源專員 — 社會學對群體動態和組織行為的理解適用於人力資源領域。
+&lt;/history&gt;
+
+以下是使用者的問題：
+&lt;question&gt;
+這兩個職涯中哪個需要超過學士學位？
+&lt;/question&gt;
+
+你如何回應使用者的問題？
+
+先思考你的答案，再做出回應。
+
+請將你的回應放在 &lt;response&gt;&lt;/response&gt; 標籤中。</code></pre>
+  </div>
+
+  <h3>元素結構摘要</h3>
+  <table>
+    <thead><tr><th>順序</th><th>元素</th><th>建議位置</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>User 角色</td><td>自動（對話開頭）</td></tr>
+      <tr><td>2</td><td>任務背景</td><td>提示詞前段</td></tr>
+      <tr><td>3</td><td>語氣背景</td><td>背景之後</td></tr>
+      <tr><td>4</td><td>任務描述與規則</td><td>中段</td></tr>
+      <tr><td>5</td><td>範例</td><td>規則之後</td></tr>
+      <tr><td>6</td><td>輸入資料</td><td>範例之後</td></tr>
+      <tr><td>7</td><td>即時任務描述</td><td>靠近末尾</td></tr>
+      <tr><td>8</td><td>預思考</td><td>末尾</td></tr>
+      <tr><td>9</td><td>輸出格式</td><td>最末尾</td></tr>
+      <tr><td>10</td><td>預填回應</td><td>Assistant 角色</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2 id="ch09-exercise"><span class="section-icon exercise"><svg viewBox="0 0 24 24" fill="none" stroke="#5a7a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>練習</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg> 練習 9.1</div>
+    <h4>建構你自己的複雜提示詞</h4>
+    <p>選擇以下其中一個情境，使用上述 10 個元素建構一個完整的複雜提示詞，然後在 Claude 中測試：</p>
+    <p><strong>情境 A — 客服機器人</strong>：建構一個科技公司的客服聊天機器人提示詞。它應該能回答產品問題、處理退貨請求，並在遇到超出能力範圍的問題時適當引導。</p>
+    <p><strong>情境 B — 文件摘要助手</strong>：建構一個法律文件摘要助手。它應該能從長文件中提取關鍵條款、識別潛在風險，並以非法律人士也能理解的方式呈現。</p>
+    <p><strong>情境 C — 程式碼審查員</strong>：建構一個程式碼審查助手。它應該能檢查程式碼中的錯誤、安全漏洞和效能問題，並提供改善建議。</p>
+
+    <div class="tip-block">
+      <p><strong>建構時的檢查清單：</strong></p>
+      <p>是否包含清楚的角色/背景設定？是否有明確的規則和限制？是否提供了範例？是否指定了輸出格式？是否在適當位置加入了預思考步驟？</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="ch09-playground"><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <ul>
+    <li>從簡單版本開始，逐步加入更多元素</li>
+    <li>測試移除某個元素後的效果差異</li>
+    <li>嘗試調整元素的順序，觀察對回應品質的影響</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()"><span class="nav-direction">← 上一章</span><span class="nav-title">避免幻覺</span></button>
+    <button class="chapter-nav-btn next" onclick="goNext()"><span class="nav-direction">下一章 →</span><span class="nav-title">附錄：提示詞鏈接</span></button>
+  </div>
+</article>
+
+<!-- ==================== 附錄 10.1 ==================== -->
+<article class="chapter" id="ch10_1" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">附錄 10.1</div>
+    <h1>提示詞鏈接（Prompt Chaining）</h1>
+    <p class="lead">利用多輪對話讓 Claude 的輸出逐步改善——每一輪都可以修正、擴展或精煉前一輪的結果。</p>
+  </header>
+
+  <h2><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>俗話說「寫作就是重寫」。事實上，<strong>Claude 在被要求重新檢查時，通常能改善回應的準確度</strong>！</p>
+
+  <h3>範例 1：自我修正</h3>
+  <p>在 Claude 中進行以下多輪對話：</p>
+  <p><strong>第一輪</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>列出十個以 "ab" 結尾的英文單字。</code></pre>
+  </div>
+  <p><strong>第二輪</strong>（在同一個對話中繼續）：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>請找出其中不是真正英文單字的，並替換掉。</code></pre>
+  </div>
+
+  <h3>範例 2：如果答案已經正確呢？</h3>
+  <p>如果 Claude 的第一次回答已經全部正確，但你還是要求它檢查，它可能會不必要地修改答案。解決方式是<strong>給 Claude 一個出口</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>改良版第二輪</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>請找出其中不是真正英文單字的，並替換掉。如果所有單字都是真正的英文單字，就直接返回原始列表。</code></pre>
+  </div>
+
+  <h3>範例 3：改善寫作品質</h3>
+  <p><strong>第一輪</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>請寫一個關於一條在太空中旅行的金魚的短篇故事。</code></pre>
+  </div>
+  <p><strong>第二輪</strong>：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>提示詞</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>這個故事很好！但能不能讓它更好？請改善敘事節奏，加入更多感官描寫，並讓結局更令人意外。</code></pre>
+  </div>
+
+  <h3>在不同介面中使用 Prompt Chaining</h3>
+  <ul>
+    <li><strong>claude.ai / Claude Desktop</strong> — 最自然的方式——在同一個對話中繼續提問</li>
+    <li><strong>Claude Code</strong> — 同上，在同一個 session 中繼續對話</li>
+    <li><strong>API</strong> — 需要手動將前面的對話歷史放入 messages 陣列中</li>
+  </ul>
+
+  <hr>
+
+  <h2><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <ul>
+    <li>讓 Claude 先寫一段程式碼，然後在下一輪要求它進行最佳化</li>
+    <li>讓 Claude 先回答一個問題，然後要求它質疑自己的答案</li>
+    <li>進行三輪以上的對話，每輪都讓 Claude 改善前一輪的輸出</li>
+    <li>先讓 Claude 草擬一個計畫，然後在下一輪要求它找出計畫中的漏洞</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()"><span class="nav-direction">← 上一章</span><span class="nav-title">從零建構複雜提示詞</span></button>
+    <button class="chapter-nav-btn next" onclick="goNext()"><span class="nav-direction">下一章 →</span><span class="nav-title">工具使用</span></button>
+  </div>
+</article>
+
+<!-- ==================== 附錄 10.2 ==================== -->
+<article class="chapter" id="ch10_2" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">附錄 10.2</div>
+    <h1>工具使用（Tool Use / Function Calling）</h1>
+    <p class="lead">工具使用本質上就是替換與提示詞鏈接的結合——讓 Claude 呼叫外部函式來擴展能力。</p>
+  </header>
+
+  <h2><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>工具使用（Tool Use），也稱為 Function Calling，其實<strong>就是替換（substitution）和提示詞鏈接（prompt chaining）的結合</strong>。Claude 本身無法直接呼叫工具或函式，流程如下：</p>
+  <ol>
+    <li>Claude 輸出它想呼叫的工具名稱和參數</li>
+    <li>暫停回應生成，等待工具執行</li>
+    <li>將工具結果附加到對話中，重新提示 Claude</li>
+  </ol>
+
+  <h3>工具使用的組成</h3>
+  <p>要讓 Claude 使用工具，你需要兩個元素：</p>
+  <ol>
+    <li><strong>System prompt</strong> — 向 Claude 解釋工具使用的概念，並提供可用工具的詳細描述</li>
+    <li><strong>控制邏輯</strong> — 協調和執行 Claude 工具使用請求的程式碼</li>
+  </ol>
+
+  <h3>可以給 Claude 的工具範例</h3>
+  <ul>
+    <li>計算機</li>
+    <li>字數計算器</li>
+    <li>SQL 資料庫查詢</li>
+    <li>天氣 API</li>
+    <li>網頁搜尋</li>
+  </ul>
+
+  <h3>在不同介面中的工具使用</h3>
+  <div class="tip-block">
+    <p><strong>claude.ai 網頁</strong> — 目前支援部分內建工具（如 Analysis tool），但無法自訂工具</p>
+    <p><strong>Claude Desktop</strong> — 支援 MCP（Model Context Protocol）伺服器，可連接各種工具</p>
+    <p><strong>Claude Code</strong> — 內建多種工具（檔案讀寫、終端機執行、網頁搜尋等），也支援 MCP</p>
+    <p><strong>API</strong> — 完整支援自訂工具定義和函式呼叫</p>
+  </div>
+
+  <h3>工具定義範例</h3>
+  <p>以下是一個計算機工具的定義範例（JSON Schema 格式）：</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>JSON</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>{
+  "name": "calculator",
+  "description": "用於基本算術的計算機函式。支援加法、減法、乘法和除法。",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "first_operand": {
+        "type": "integer",
+        "description": "第一個運算元"
+      },
+      "second_operand": {
+        "type": "integer",
+        "description": "第二個運算元"
+      },
+      "operator": {
+        "type": "string",
+        "description": "要執行的運算",
+        "enum": ["+", "-", "*", "/"]
+      }
+    },
+    "required": ["first_operand", "second_operand", "operator"]
+  }
+}</code></pre>
+  </div>
+
+  <h3>工具使用的流程</h3>
+  <div class="flow-diagram">
+    <span class="flow-step">使用者提問</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-step">Claude 決定使用工具</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-step">輸出工具呼叫</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-step">系統執行工具</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-step">結果回傳 Claude</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-step">Claude 回應使用者</span>
+  </div>
+
+  <div class="tip-block">
+    <p>如果你想深入了解工具使用的實作，建議參考 <a href="https://docs.anthropic.com/claude/docs/tool-use" target="_blank">Anthropic Tool Use 官方文件</a>。</p>
+  </div>
+
+  <hr>
+
+  <h2><span class="section-icon playground"><svg viewBox="0 0 24 24" fill="none" stroke="#b89a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>自由練習區</h2>
+  <ul>
+    <li>在 Claude Code 中，請 Claude 幫你建立一個檔案，然後讀取它——這就是工具使用的實際應用</li>
+    <li>在 Claude Desktop 中，如果有設定 MCP 伺服器，嘗試讓 Claude 使用外部工具完成任務</li>
+    <li>思考你的工作流程中有哪些重複性任務可以透過工具使用來自動化</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()"><span class="nav-direction">← 上一章</span><span class="nav-title">提示詞鏈接</span></button>
+    <button class="chapter-nav-btn next" onclick="goNext()"><span class="nav-direction">下一章 →</span><span class="nav-title">搜尋與檢索</span></button>
+  </div>
+</article>
+
+<!-- ==================== 附錄 10.3 ==================== -->
+<article class="chapter" id="ch10_3" style="display:none">
+  <header class="chapter-header">
+    <div class="chapter-label">附錄 10.3</div>
+    <h1>搜尋與檢索（RAG）</h1>
+    <p class="lead">結合搜尋和生成的 RAG 技術——讓 Claude 存取最新資訊、減少幻覺、客製化知識。</p>
+  </header>
+
+  <h2><span class="section-icon lesson"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>課程</h2>
+
+  <p>你知道可以用 Claude 來<strong>搜尋 Wikipedia</strong> 嗎？不只 Wikipedia——你也可以搜尋你自己的文件，無論是純文字還是存在向量資料庫中的嵌入。</p>
+
+  <h3>什麼是 RAG？</h3>
+  <p><strong>RAG（Retrieval-Augmented Generation，檢索增強生成）</strong>是一種結合搜尋和生成的技術：</p>
+  <ol>
+    <li><strong>檢索（Retrieval）</strong> — 從外部資料來源（文件庫、資料庫、網路）搜尋相關資訊</li>
+    <li><strong>增強（Augmented）</strong> — 將檢索到的資訊加入 Claude 的提示詞中</li>
+    <li><strong>生成（Generation）</strong> — Claude 根據檢索到的資訊生成回應</li>
+  </ol>
+
+  <h3>為什麼需要 RAG？</h3>
+  <ul>
+    <li><strong>突破知識截止日期</strong> — Claude 的訓練資料有時間限制，RAG 讓它能存取最新資訊</li>
+    <li><strong>提升準確度</strong> — 基於實際文件回答，減少幻覺</li>
+    <li><strong>客製化知識</strong> — 讓 Claude 存取你的私有文件和資料</li>
+  </ul>
+
+  <h3>在不同介面中使用 RAG</h3>
+  <div class="tip-block">
+    <p><strong>claude.ai 網頁</strong> — 可以上傳文件、使用 Projects 功能加入知識庫</p>
+    <p><strong>Claude Desktop</strong> — 支援本地文件存取，可透過 MCP 連接外部資料來源</p>
+    <p><strong>Claude Code</strong> — 可直接讀取本地檔案系統中的文件，也支援網頁搜尋</p>
+    <p><strong>API</strong> — 可搭配向量資料庫（如 Pinecone、Weaviate）實作完整的 RAG 流程</p>
+  </div>
+
+  <h3>延伸學習資源</h3>
+  <ul>
+    <li><a href="https://github.com/anthropics/anthropic-cookbook/blob/main/third_party/Wikipedia/wikipedia-search-cookbook.ipynb" target="_blank">Anthropic RAG Cookbook 範例</a> — 學習如何用向量資料庫、Wikipedia、網路等補充 Claude 的知識</li>
+    <li><a href="https://docs.anthropic.com/claude/docs/embeddings" target="_blank">Anthropic Embeddings 文件</a> — 了解嵌入和向量資料庫工具</li>
+  </ul>
+
+  <h3>簡易 RAG 練習</h3>
+  <p>你現在就可以嘗試最簡單的「手動 RAG」：</p>
+  <ol>
+    <li>找一份你感興趣的文件（新聞文章、技術文件、報告等）</li>
+    <li>將文件內容貼到 Claude 對話中，用 <code>&lt;document&gt;</code> 標籤包裹</li>
+    <li>在文件之後提出你的問題</li>
+    <li>要求 Claude 只根據提供的文件回答，並引用相關段落</li>
+  </ol>
+
+  <div class="code-block">
+    <div class="code-block-header"><span>手動 RAG 模板</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 複製</button></div>
+    <pre><code>&lt;document&gt;
+（在這裡貼上你的文件內容）
+&lt;/document&gt;
+
+根據以上文件，請回答以下問題：（你的問題）
+
+請先引用文件中相關的段落，再提供你的答案。如果文件中沒有相關資訊，請明確說明。</code></pre>
+  </div>
+
+  <p>這就是 RAG 的核心概念——只是在生產環境中，「檢索」步驟通常由程式自動完成，而不是手動複製貼上。</p>
+
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn prev" onclick="goPrev()"><span class="nav-direction">← 上一章</span><span class="nav-title">工具使用</span></button>
+    <div></div>
+  </div>
+</article>
+
+</div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

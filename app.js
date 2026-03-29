@@ -22,17 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
   buildNav();
   setupMenuToggle();
 
-  // 從 URL hash 或 localStorage 還原
+  // 依據 URL hash 決定顯示章節，無 hash 則顯示 ch01 但不捲動
   const hash = window.location.hash.replace("#", "");
   if (hash && chapters.find((c) => c.id === hash)) {
     navigateTo(hash);
   } else {
-    const saved = localStorage.getItem("current-chapter");
-    if (saved && chapters.find((c) => c.id === saved)) {
-      navigateTo(saved);
-    } else {
-      navigateTo("ch00");
-    }
+    showChapter("ch00");
   }
 });
 
@@ -88,6 +83,22 @@ function navigateTo(id) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+// 僅顯示章節內容，不設定 hash、不捲動
+function showChapter(id) {
+  currentChapter = id;
+
+  document.querySelectorAll(".nav-item").forEach((el) => {
+    el.classList.toggle("active", el.dataset.id === id);
+  });
+
+  document.querySelectorAll(".chapter").forEach((el) => {
+    el.style.display = el.id === id ? "block" : "none";
+  });
+
+  markRead(id);
+  updateProgress();
+}
+
 function markRead(id) {
   const read = JSON.parse(localStorage.getItem("read-chapters") || "[]");
   if (!read.includes(id)) {
@@ -117,18 +128,22 @@ function setupMenuToggle() {
   const toggle = document.getElementById("menu-toggle");
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebar-overlay");
+  const closeBtn = document.getElementById("sidebar-close");
 
   toggle?.addEventListener("click", () => {
-    sidebar.classList.toggle("open");
-    overlay.classList.toggle("show");
+    sidebar.classList.add("open");
+    overlay.classList.add("show");
+    toggle.classList.add("active");
   });
 
+  closeBtn?.addEventListener("click", closeMobileMenu);
   overlay?.addEventListener("click", closeMobileMenu);
 }
 
 function closeMobileMenu() {
   document.getElementById("sidebar")?.classList.remove("open");
   document.getElementById("sidebar-overlay")?.classList.remove("show");
+  document.getElementById("menu-toggle")?.classList.remove("active");
 }
 
 // 複製程式碼

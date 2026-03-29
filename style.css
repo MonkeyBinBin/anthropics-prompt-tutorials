@@ -211,23 +211,69 @@ body {
 .menu-toggle {
   display: none;
   position: fixed;
-  top: 1rem;
-  left: 1rem;
+  top: 0.75rem;
+  right: 0.75rem;
   z-index: 200;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background: var(--sidebar-bg);
   border: none;
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px var(--shadow);
+  box-shadow: 0 2px 12px rgba(44, 36, 24, 0.15);
+  transition: background 0.2s, transform 0.2s;
 }
 
-.menu-toggle svg {
+.menu-toggle:active {
+  transform: scale(0.92);
+}
+
+.menu-toggle .icon-menu,
+.menu-toggle .icon-close {
   width: 20px;
   height: 20px;
+  stroke: var(--sidebar-active);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.menu-toggle .icon-close {
+  display: none;
+}
+
+/* 打開選單後隱藏漢堡按鈕，關閉按鈕改由 sidebar 內部顯示 */
+.menu-toggle.active {
+  display: none;
+}
+
+/* Sidebar 內部關閉按鈕 */
+.sidebar-close {
+  display: none;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+.sidebar-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-close svg {
+  width: 18px;
+  height: 18px;
   stroke: var(--sidebar-active);
   fill: none;
   stroke-width: 2;
@@ -247,12 +293,16 @@ body {
   flex: 1;
   margin-left: 300px;
   min-height: 100vh;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .content {
   max-width: 740px;
   margin: 0 auto;
   padding: 3rem 2.5rem 6rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* ===== Chapter header ===== */
@@ -477,6 +527,7 @@ body {
   font-size: 0.85em;
   color: var(--accent);
   border: 1px solid var(--border);
+  word-break: break-all;
 }
 
 /* ===== Exercise block ===== */
@@ -741,10 +792,19 @@ body {
 @media (max-width: 900px) {
   .sidebar {
     transform: translateX(-100%);
+    width: 100vw;
+    min-width: unset;
+    max-width: unset;
+    height: 100vh;
+    height: 100dvh;
   }
 
   .sidebar.open {
     transform: translateX(0);
+  }
+
+  .sidebar.open .sidebar-close {
+    display: flex;
   }
 
   .sidebar-overlay.show {
@@ -755,42 +815,80 @@ body {
     display: flex;
   }
 
+  /* 錨點捲動時為漢堡按鈕保留空間 */
+  .chapter {
+    scroll-margin-top: 4.5rem;
+  }
+
+
   .main {
     margin-left: 0;
   }
 
   .content {
-    padding: 4rem 1.25rem 4rem;
+    padding: 1rem 1.25rem 4rem;
   }
 
   .chapter-header h1 {
     font-size: 1.7rem;
   }
+
+  /* 手機版 sidebar 內文字放大 */
+  .sidebar-header {
+    padding: 2.5rem 1.5rem 1.5rem;
+  }
+
+  .sidebar-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .sidebar-header .subtitle {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+
+  .nav-item {
+    font-size: 1.05rem;
+    padding: 0.85rem 1.5rem;
+    gap: 1rem;
+  }
+
+  .nav-item .nav-number {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.8rem;
+  }
+
+  .nav-section-label {
+    font-size: 0.75rem;
+    padding: 1.25rem 1.5rem 0.5rem;
+  }
+
+  .sidebar-footer {
+    font-size: 0.8rem;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .progress-text {
+    font-size: 0.75rem;
+  }
 }
 
 @media (max-width: 480px) {
   html {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .content {
-    padding: 3.5rem 1rem 3rem;
+    padding: 1rem 1rem 3rem;
   }
 
   .chapter-toc {
     gap: 0.75rem;
   }
 
-  .chapter-nav {
-    flex-direction: column;
-  }
-
   .chapter-nav-btn {
-    max-width: 100%;
-  }
-
-  .chapter-nav-btn.next {
-    text-align: left;
+    max-width: 48%;
   }
 }
 

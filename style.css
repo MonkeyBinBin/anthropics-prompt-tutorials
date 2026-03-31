@@ -892,6 +892,75 @@ body {
   }
 }
 
+/* ===== Language notice banner ===== */
+.lang-notice {
+  background: linear-gradient(135deg, #f0ebe3 0%, #fdf8f2 100%);
+  border: 1px solid var(--tip-border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.lang-notice-title {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lang-notice-title svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.lang-notice p {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+
+.lang-notice p:last-child {
+  margin-bottom: 0;
+}
+
+.lang-notice code {
+  background: rgba(255,255,255,0.6);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.82em;
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+
+/* ===== Bilingual code translation ===== */
+.code-translation {
+  background: var(--paper-dark);
+  border: 1px dashed var(--border);
+  border-radius: 0 0 6px 6px;
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  margin-top: -1.15rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.65;
+}
+
+.code-translation .translation-label {
+  font-family: "Noto Sans TC", -apple-system, sans-serif;
+  font-weight: 600;
+  color: var(--ink-light);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  margin-right: 0.4rem;
+}
+
 /* ===== Print ===== */
 @media print {
   .sidebar,
